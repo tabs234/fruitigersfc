@@ -1,0 +1,269 @@
+/* ============================================================
+   SchoolFlashCards5 — "Frutiger Aero" shared design system
+   Linked from games.html, status.html, info.html, and wr.html.
+
+   Every class name a page's own JavaScript builds at runtime
+   (game-card, awardshii-btn, status-badge, wr-records h2, etc.)
+   keeps its original name here — only the look underneath it
+   changed. Nothing in this file should require touching the
+   Firebase/Firestore or status-generator scripts.
+   ============================================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Nunito:wght@400;600;700;800&display=swap');
+
+:root{
+  /* sky + water, the Aero backdrop */
+  --sky-top:     #2C9FE3;
+  --sky-mid:     #7BD2EE;
+  --sky-bottom:  #E4F8F4;
+
+  /* brand accents — same roles as the old palette, glossier hues */
+  --primary:     #23C7BE;   /* aero teal   (was #4ECDC4) */
+  --secondary:   #1AA7CB;   /* deep aqua   (was #4ECDC4) */
+  --accent:      #FFDE59;   /* sun yellow  (was #FFE66D) */
+  --button:      #FF7B68;   /* coral       (was #FF6B6B) */
+  --leaf:        #7ED957;   /* meadow green, "new" badges */
+  --dark:        #113247;   /* marine ink  (was #292F36) */
+  --light:       #EEFBFB;   /* pale aqua-white (was #F7FFF7) */
+  --ink-soft:    #3E6478;   /* secondary text on glass */
+  --ink-link:    #0C6F89;   /* link / hover blue */
+
+  --r-lg: 26px;
+  --r-md: 18px;
+  --r-sm: 12px;
+  --r-pill: 999px;
+}
+
+*{ box-sizing:border-box; }
+html{ scroll-behavior:smooth; }
+
+body{
+  margin:0;
+  min-height:100vh;
+  color:var(--dark);
+  font-family:'Nunito', 'Trebuchet MS', sans-serif;
+  background:
+    radial-gradient(900px 480px at 12% -8%, rgba(255,255,255,.65), transparent 60%),
+    radial-gradient(700px 420px at 100% 0%, rgba(255,255,255,.4), transparent 55%),
+    linear-gradient(180deg, var(--sky-top) 0%, var(--sky-mid) 42%, var(--sky-bottom) 100%);
+  background-attachment: fixed;
+  position:relative;
+  overflow-x:hidden;
+}
+
+h1,h2,h3,h4{ font-family:'Baloo 2', 'Trebuchet MS', sans-serif; font-weight:700; margin:0; }
+button, input, select, textarea{ font-family:'Nunito', sans-serif; }
+
+/* ---------- floating background bubbles (decorative, non-interactive) --- */
+body::before, body::after{
+  content:"";
+  position:fixed;
+  z-index:0;
+  pointer-events:none;
+  border-radius:50%;
+  background: radial-gradient(circle at 30% 28%, rgba(255,255,255,.95), rgba(255,255,255,.05) 55%, transparent 70%);
+}
+body::before{ width:230px; height:230px; top:6%;  left:-70px;  animation: bob-a 17s ease-in-out infinite; opacity:.65; }
+body::after { width:150px; height:150px; bottom:8%; right:-40px; animation: bob-b 14s ease-in-out infinite; opacity:.5; }
+@keyframes bob-a{ 0%,100%{ transform:translateY(0); } 50%{ transform:translateY(-34px); } }
+@keyframes bob-b{ 0%,100%{ transform:translateY(0); } 50%{ transform:translateY(26px); } }
+
+.container{ width:90%; max-width:1200px; margin:0 auto; position:relative; z-index:1; }
+
+/* ==================== HEADER (frosted glass bar) ==================== */
+header{
+  background: linear-gradient(180deg, rgba(255,255,255,.6), rgba(255,255,255,.18));
+  backdrop-filter: blur(16px) saturate(150%);
+  -webkit-backdrop-filter: blur(16px) saturate(150%);
+  border-bottom: 1px solid rgba(255,255,255,.7);
+  box-shadow: 0 8px 30px rgba(8,55,75,.16), inset 0 1px 0 rgba(255,255,255,.9);
+  padding: 14px 0;
+  position: relative;
+  z-index: 6;
+}
+.header-content{ display:flex; justify-content:space-between; align-items:center; gap:20px; }
+.header-left{ display:flex; align-items:center; gap:15px; flex-shrink:0; }
+.header-right{ display:flex; align-items:center; gap:20px; flex-shrink:0; }
+
+.logo{
+  position:relative; display:inline-block;
+  font-family:'Baloo 2', cursive; font-size:28px; font-weight:800;
+  color: var(--dark); text-decoration:none;
+  text-shadow: 0 1px 0 rgba(255,255,255,.7);
+}
+.logo span{
+  background: linear-gradient(180deg, #ffffff 10%, var(--secondary) 55%, #0c6f89 100%);
+  -webkit-background-clip:text; background-clip:text; color:transparent;
+}
+.logo .hover-text{
+  position:absolute; top:100%; left:0; width:100%; text-align:center;
+  font-family:'Nunito', sans-serif; font-size:12px; font-weight:700;
+  color:var(--ink-link); opacity:0; transform:translateY(5px);
+  transition:opacity .3s ease, transform .3s ease; pointer-events:none; white-space:nowrap;
+}
+.logo:hover .hover-text{ opacity:1; transform:translateY(0); }
+.nt{ position:relative; display:inline-block; font-style:normal; }
+.nt s{ text-decoration-thickness:3px; }
+.ek{ position:absolute; left:0; top:100%; font-style:normal; }
+
+nav ul{ display:flex; list-style:none; align-items:center; gap:16px; margin:0; padding:0; white-space:nowrap; }
+nav ul li a{
+  color: var(--dark); text-decoration:none; font-weight:700; font-size:14px;
+  padding:6px 0; border-bottom:2px solid transparent; transition: all .25s ease;
+}
+nav ul li a:hover{ color:var(--ink-link); border-bottom-color: var(--accent); }
+
+/* ==================== GLOSSY "GEL" PILL BUTTONS ====================
+   The signature Aero move: a vertical gradient plus a bright highlight
+   arc riding the top half, the way light sits on a water droplet. */
+.random-game-btn, .suggestions-btn, #cycleBrandBtn, .footer-btn,
+.play-btn, .discord-btn, .refresh-btn, .category-btn{
+  position:relative; overflow:hidden;
+  display:inline-flex; align-items:center; justify-content:center; gap:8px;
+  border:none; cursor:pointer; text-decoration:none;
+  font-family:'Nunito', sans-serif; font-weight:800; font-size:14px;
+  border-radius: var(--r-pill);
+  transition: transform .2s ease, box-shadow .2s ease, filter .2s ease;
+  user-select:none;
+}
+.random-game-btn::before, .suggestions-btn::before, #cycleBrandBtn::before, .footer-btn::before,
+.play-btn::before, .discord-btn::before, .refresh-btn::before, .category-btn::before{
+  content:""; position:absolute; left:0; right:0; top:8%; height:45%;
+  background: linear-gradient(180deg, rgba(255,255,255,.75), rgba(255,255,255,0));
+  border-radius: 50%; pointer-events:none;
+}
+.random-game-btn:hover, .suggestions-btn:hover, #cycleBrandBtn:hover, .footer-btn:hover,
+.play-btn:hover, .discord-btn:hover, .category-btn:hover{
+  transform: translateY(-2px) scale(1.03);
+  filter: brightness(1.06);
+}
+.random-game-btn:active, .suggestions-btn:active, #cycleBrandBtn:active, .footer-btn:active,
+.play-btn:active, .discord-btn:active{
+  transform: translateY(0) scale(.98);
+}
+
+/* dark chrome variant — nav utility buttons */
+.random-game-btn, .suggestions-btn, #cycleBrandBtn, .footer-btn{
+  padding:9px 18px;
+  color: var(--accent);
+  background: linear-gradient(180deg, #2f5468, var(--dark) 65%, #0a2130);
+  box-shadow: 0 4px 12px rgba(6,35,50,.35), inset 0 1px 0 rgba(255,255,255,.25);
+}
+.random-game-btn:hover, .suggestions-btn:hover, #cycleBrandBtn:hover, .footer-btn:hover{ color:#fff; }
+
+/* coral CTA variant — play / join actions */
+.play-btn, .discord-btn{
+  padding:9px 20px;
+  color:#fff;
+  background: linear-gradient(180deg, #ff9c8f, var(--button) 60%, #e2543f);
+  box-shadow: 0 4px 14px rgba(226,84,63,.4), inset 0 1px 0 rgba(255,255,255,.55);
+}
+
+/* glass outline variant — quiet actions like refresh / filters */
+.refresh-btn, .category-btn{
+  padding:6px 16px;
+  color:var(--ink-link);
+  background: linear-gradient(180deg, rgba(255,255,255,.85), rgba(255,255,255,.45));
+  border: 1px solid rgba(255,255,255,.9);
+  box-shadow: 0 3px 10px rgba(8,55,75,.14), inset 0 1px 0 rgba(255,255,255,.9);
+}
+.category-btn.active{
+  background: linear-gradient(180deg, #6be0d6, var(--primary));
+  color:#fff;
+}
+
+/* ==================== SEARCH FIELDS ==================== */
+.header-search, .search-bar{ position:relative; }
+.header-search input, .search-bar input{
+  width:100%; border:1px solid rgba(255,255,255,.85); font-family:inherit;
+  border-radius: var(--r-pill);
+  background: linear-gradient(180deg, rgba(255,255,255,.92), rgba(255,255,255,.55));
+  box-shadow: inset 0 2px 6px rgba(8,55,75,.15), 0 2px 6px rgba(255,255,255,.6);
+  color: var(--dark);
+}
+.header-search input{ padding:8px 15px 8px 15px; font-size:14px; }
+.search-bar input{ padding:13px 22px; font-size:16px; }
+.header-search input::placeholder, .search-bar input::placeholder{ color:#5c8494; }
+
+.header-search button, .search-bar button{
+  position:absolute; top:50%; right:5px; transform:translateY(-50%);
+  border:none; border-radius:50%; cursor:pointer; color:#fff;
+  background: linear-gradient(180deg, #ff9c8f, var(--button) 70%, #e2543f);
+  box-shadow: 0 2px 6px rgba(226,84,63,.5), inset 0 1px 0 rgba(255,255,255,.6);
+}
+.header-search button{ width:26px; height:26px; font-size:12px; }
+.search-bar button{ width:36px; height:36px; }
+
+/* ==================== HERO BAND ==================== */
+.hero{
+  position:relative; z-index:1;
+  padding:40px 0;
+  text-align:center; color:#fff;
+  background: linear-gradient(180deg, rgba(29,150,190,.32), rgba(29,150,190,.06));
+  border-bottom: 1px solid rgba(255,255,255,.35);
+}
+
+/* ==================== GLASS CARDS (games, status, incidents) ========== */
+.game-card, .card{
+  position:relative; overflow:hidden;
+  border-radius: var(--r-lg);
+  background: linear-gradient(160deg, rgba(255,255,255,.72), rgba(255,255,255,.34));
+  border: 1px solid rgba(255,255,255,.75);
+  box-shadow: 0 10px 26px rgba(8,55,75,.16), inset 0 1px 0 rgba(255,255,255,.85);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  transition: transform .3s ease, box-shadow .3s ease;
+}
+.game-card::after, .card::after{
+  content:""; position:absolute; left:6%; right:6%; top:4%; height:34%;
+  background: linear-gradient(180deg, rgba(255,255,255,.7), rgba(255,255,255,0));
+  border-radius: 50% 50% 60% 60% / 100% 100% 30% 30%;
+  pointer-events:none;
+}
+.game-card:hover{ transform: translateY(-6px); box-shadow: 0 16px 34px rgba(8,55,75,.24), inset 0 1px 0 rgba(255,255,255,.9); }
+
+.game-image{ height:150px; background-color:var(--secondary); background-size:cover; background-position:center; position:relative; z-index:1; }
+.game-info{ padding:16px; position:relative; z-index:1; }
+.game-info-top{ display:flex; align-items:center; justify-content:space-between; gap:8px; flex-wrap:wrap; margin-bottom:10px; }
+.badges-row{ display:flex; gap:6px; flex-wrap:wrap; }
+.game-title{ font-family:'Baloo 2', sans-serif; font-size:18px; color:var(--dark); }
+.game-description{ font-size:14px; color:var(--ink-soft); margin-bottom:15px; }
+
+/* ==================== BADGES (glossy chips) ==================== */
+.awardshii-btn, .hotgames-btn, .fixed-btn{
+  position:relative; overflow:hidden;
+  display:inline-block; color:#fff; font-weight:800; font-size:13px;
+  padding:6px 13px; border-radius: var(--r-pill); white-space:nowrap;
+  box-shadow: 0 3px 8px rgba(0,0,0,.18), inset 0 1px 0 rgba(255,255,255,.5);
+}
+.awardshii-btn::before, .hotgames-btn::before, .fixed-btn::before{
+  content:""; position:absolute; left:0; right:0; top:0; height:50%;
+  background: linear-gradient(180deg, rgba(255,255,255,.65), rgba(255,255,255,0));
+}
+.awardshii-btn{ background: linear-gradient(180deg, #b6f19a, var(--leaf) 65%, #4fae2c); }
+.hotgames-btn{ background: linear-gradient(180deg, #ff9c8f, #e2453a 65%, #b32c22); }
+.fixed-btn{ background: linear-gradient(180deg, #8fe3ff, #2bbcff 65%, #1088c4); }
+
+.status-msg{ grid-column:1/-1; text-align:center; font-size:1.15em; margin:20px 0; color:var(--ink-soft); font-weight:700; }
+
+/* ==================== FOOTER ==================== */
+footer{
+  position:relative; z-index:1;
+  color:#eafcff;
+  background: linear-gradient(180deg, #123246, #0a2131);
+  padding:26px 0;
+  text-align:center;
+  border-top: 1px solid rgba(255,255,255,.15);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.08);
+}
+.copyright{ font-size:13px; color:#8fb4c4; }
+.footer-links{ display:flex; justify-content:center; margin-bottom:20px; }
+.footer-links a{ color:#eafcff; margin:0 15px; text-decoration:none; }
+.footer-links a:hover{ text-decoration:underline; }
+footer a{ color:#8fe3ff; }
+
+@media (max-width:768px){
+  .header-content{ flex-direction:column; gap:15px; align-items:stretch; }
+  .header-left, .header-right{ justify-content:center; flex-wrap:wrap; gap:10px; }
+  nav ul{ justify-content:center; flex-wrap:wrap; }
+}
